@@ -1,4 +1,1 @@
-this is a test file
-Let's see...
-
-How this goes
+Test
