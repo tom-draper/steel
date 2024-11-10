@@ -45,7 +45,7 @@ COPY --from=backend-builder /app/target/release/steel /app/steel
 COPY --from=frontend-builder /app/frontend/build /app/frontend/build
 
 # Expose the port your server will run on
-EXPOSE 8080
+EXPOSE 3000
 
 # Run the Rust binary as the main application
 CMD ["./steel"]
