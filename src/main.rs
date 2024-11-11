@@ -9,38 +9,86 @@ use std::net::SocketAddr;
 use tokio::fs;
 use tower_http::services::ServeDir;
 
-async fn serve_index() -> impl IntoResponse {
+async fn serve_website() -> impl IntoResponse {
     println!("Requested index.html");
     let content = fs::read_to_string("frontend/build/index.html")
         .await
-        .unwrap_or_else(|_| String::from("<h1>Something went wrong!</h1>"));
+        .unwrap_or_else(|_| String::new());
     Html(content)
 }
 
-// Handler for "/files/:path/*" route
-async fn files_handler(Path(path): Path<String>) -> Json<String> {
+async fn serve_path(Path(path): Path<String>) -> axum::response::Response {
+    println!("Requested path: {}", path);
+
+    match fs::metadata(&path).await {
+        Ok(metadata) => {
+            if metadata.is_file() {
+                println!("The path is a file.");
+                return serve_file(Path(path)).await.into_response();
+            } else if metadata.is_dir() {
+                println!("The path is a directory.");
+                return serve_directory(Path(path)).await.into_response();
+            } else {
+                println!("The path is neither a regular file nor a directory.");
+                return (
+                    axum::http::StatusCode::NOT_FOUND,
+                    Json(String::from("Path not found")),
+                ).into_response();
+            }
+        }
+        Err(e) =>  {
+            println!("Failed to access path: {}", e);
+            return serve_file(Path(path)).await.into_response();
+        }
+    }
+}
+
+async fn serve_file(Path(path): Path<String>) -> impl IntoResponse {
     println!("Requested file path: {}", path);
+    match fs::read_to_string(path).await {
+        Ok(content) => {
+            println!("Content: {}", content);
+            (axum::http::StatusCode::OK, Json(content))
+        }
+        Err(_) => {
+            println!("File not found");
+            (
+                axum::http::StatusCode::NOT_FOUND,
+                Json(String::from("File not found")),
+            )
+        }
+    }
+}
 
-    // read the file
-    let content = fs::read_to_string(path)
-        .await
-        .unwrap_or_else(|_| String::from("<h1>Something went wrong!</h1>"));
-
-    println!("Content: {}", content);
-
-    Json(content)
+async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
+    println!("Requested directory path: {}", path);
+    match fs::read_dir(path).await {
+        Ok(mut dir) => {
+            let mut content = Vec::new();
+            while let Some(entry) = dir.next_entry().await.unwrap() {
+                let path = entry.path();
+                let path_str = path.to_str().unwrap().to_string();
+                content.push(path_str);
+            }
+            println!("Content: {:?}", content);
+            (axum::http::StatusCode::OK, Json(content))
+        }
+        Err(_) => {
+            println!("Directory not found");
+            (axum::http::StatusCode::NOT_FOUND, Json(vec![]))
+        }
+    }
 }
 
 #[tokio::main]
 async fn main() {
     // Build the Axum application with a single route
     let app = Router::new()
+        .nest("/_path", Router::new().route("/*path", get(serve_path)))
+        .nest("/_file", Router::new().route("/*path", get(serve_file)))
         .nest(
-            "/_files",
-            Router::new().route(
-                "/*file",
-                get(files_handler)
-            ),
+            "/_directory",
+            Router::new().route("/*path", get(serve_directory)),
         )
         .nest(
             "/_app",
@@ -56,8 +104,8 @@ async fn main() {
                 ),
             ),
         )
-        .route("/", get(serve_index))
-        .route("/*path", get(serve_index));
+        .route("/", get(serve_website))
+        .route("/*path", get(serve_website));
 
     // Define the server address
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
