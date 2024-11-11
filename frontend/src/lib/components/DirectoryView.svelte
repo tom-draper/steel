@@ -6,7 +6,8 @@
 		return path.split("/").pop();
 	}
 
-	let search = "";
+	let options: string[];
+	let search: string = "";
 
 	function handleSearch() {
 		let filtered = [];
@@ -20,7 +21,7 @@
 
 	export let directory: string[];
 
-	let options = directory;
+	$: options = directory;
 </script>
 
 <Command.Root shouldFilter={false}>

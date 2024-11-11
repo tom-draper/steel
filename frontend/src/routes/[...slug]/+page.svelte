@@ -6,8 +6,8 @@
     import DirectoryView from "$lib/components/DirectoryView.svelte";
 
     let updateID: number;
-    let fileText: string = "";
     let slug: string;
+    let fileText: string | null = null;
     let directoryContents: string[] | null = null;
 
     $: slug = $page.params.slug;
@@ -30,6 +30,8 @@
                 if (isDirectory) {
                     directoryContents = data;
                     fileText = "";
+                    console.log('directoryContents:', directoryContents);
+                    console.log('file:', fileText);
                 } else {
                     fileText = data;
                     directoryContents = null;
@@ -38,6 +40,8 @@
                             target: document.getElementById("fileText"),
                         });
                     });
+                    console.log('directoryContents:', directoryContents);
+                    console.log('file:', fileText);
                 }
             } else {
                 resetState();
@@ -69,7 +73,7 @@
     }
 
     function resetState() {
-        fileText = "";
+        fileText = null;
         directoryContents = null;
         console.log(directoryContents)
     }
@@ -82,7 +86,7 @@
         <div class="directory-view-container">
             <DirectoryView bind:directory={directoryContents} />
         </div>
-    {:else}
+    {:else if fileText !== null}
         <div class="text-container">
             <Textarea
                 id="fileText"
@@ -92,16 +96,19 @@
                 onpaste={handleInput}
             />
         </div>
+    {:else}
+        <div class="file-not-found text-muted-foreground text-md">File not found.</div>
     {/if}
 </main>
 
 <style scoped lang="postcss">
     :global(textarea) {
-        margin-top: 30vh;
+        margin-top: 8em !important;
+        margin-bottom: 5em !important;
         width: 80%;
         max-width: 800px;
         font-size: 1.8em;
-        padding: 10px;
+        padding: 1em;
         border: none;
         border-radius: 5px;
     }
@@ -144,5 +151,11 @@
     }
     .hidden {
         display: none;
+    }
+    .file-not-found {
+        display: grid;
+        place-items: center;
+        height: 80vh;
+        font-size: 1em;
     }
 </style>

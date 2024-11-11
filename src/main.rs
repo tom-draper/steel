@@ -33,14 +33,20 @@ async fn serve_path(Path(path): Path<String>) -> axum::response::Response {
                 return (
                     axum::http::StatusCode::NOT_FOUND,
                     Json(String::from("Path not found")),
-                ).into_response();
+                )
+                    .into_response();
             }
         }
-        Err(e) =>  {
+        Err(e) => {
             println!("Failed to access path: {}", e);
             return serve_file(Path(path)).await.into_response();
         }
     }
+}
+
+async fn serve_path_root() -> axum::response::Response {
+    println!("Requested root path");
+    serve_path(Path(String::from("."))).await
 }
 
 async fn serve_file(Path(path): Path<String>) -> impl IntoResponse {
@@ -84,11 +90,23 @@ async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
 async fn main() {
     // Build the Axum application with a single route
     let app = Router::new()
-        .nest("/_path", Router::new().route("/*path", get(serve_path)))
-        .nest("/_file", Router::new().route("/*path", get(serve_file)))
+        .nest(
+            "/_path",
+            Router::new()
+                .route("/", get(serve_path_root))
+                .route("/*path", get(serve_path)),
+        )
+        .nest(
+            "/_file",
+            Router::new()
+                .route("/", get(serve_file))
+                .route("/*path", get(serve_file)),
+        )
         .nest(
             "/_directory",
-            Router::new().route("/*path", get(serve_directory)),
+            Router::new()
+                .route("/", get(serve_directory))
+                .route("/*path", get(serve_directory)),
         )
         .nest(
             "/_app",

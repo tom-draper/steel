@@ -49,7 +49,7 @@
 
 <style scoped lang="postcss">
     .directory {
-        margin: 1em 2em;
+        padding: 1em 2em;
         align-items: center;
         display: flex;
         font-size: 12px;
