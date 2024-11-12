@@ -2,7 +2,6 @@
     import DirectoryView from "$lib/components/DirectoryView.svelte";
     import { onMount } from "svelte";
 
-    let fileText: string | null = null;
     let directoryContents: string[] | null = null;
 
     onMount(() => {
@@ -12,14 +11,11 @@
     async function fetchRoot() {
         try {
             const response = await fetch("http://localhost:3000/_path");
-            console.log(response);
             if (response.ok && response.status === 200) {
                 const data = await response.json();
                 if (data instanceof Array) {
-                    fileText = "";
                     directoryContents = data;
                     console.log("directoryContents:", directoryContents);
-                    console.log("file:", fileText);
                 }
             } else {
                 resetState();
@@ -31,7 +27,6 @@
     }
 
     function resetState() {
-        fileText = null;
         directoryContents = null;
     }
 </script>
