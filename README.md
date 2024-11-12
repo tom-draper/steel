@@ -1,2 +1,3 @@
 # steel
-An elegant markdown reader and text editor in the browser.
+
+An offline text reader and editor, with powerful built-in visualizations.
