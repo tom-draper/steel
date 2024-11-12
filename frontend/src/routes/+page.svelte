@@ -31,46 +31,17 @@
     }
 </script>
 
-<main>
-    <div class="title-container">
+<main class="grid place-items-center w-full">
+    <div class="grid place-items-center h-[25vh] w-full mt-[68px]">
         <div>
-            <h1 class="title text-muted-foreground bg-accent">steel</h1>
+            <h1 class="bg-accent px-2 py-0.5 rounded-sm mb-2 text-muted-foreground">steel</h1>
             <div class="text-xs text-muted-foreground justify-self-center">v0.1.0</div>
         </div>
     </div>
 
     {#if directoryContents !== null}
-        <div class="directory-view-container">
-            <DirectoryView bind:directory={directoryContents} />
+        <div class="grid place-items-center w-[90%] place-self-center pb-[5em] max-w-[500px]">
+            <DirectoryView bind:directory={directoryContents}/>
         </div>
     {/if}
 </main>
-
-<style scoped lang="postcss">
-    main {
-        display: grid;
-        place-items: center;
-        width: 100%;
-    }
-    .title-container {
-        display: grid;
-        place-items: center;
-        height: 25vh;
-        width: 100%;
-        margin-top: 60px;
-    }
-    .title {
-        padding: 0.1em 0.5em;
-        color: var(--muted-foreground);
-        border-radius: 5px;
-        margin-bottom: 0.5em;
-    }
-    .directory-view-container {
-        display: grid;
-        place-items: center;
-        width: 90%;
-        place-self: center;
-        padding-bottom: 5em;
-        max-width: 500px;
-    }
-</style>

@@ -7,17 +7,7 @@
 	}
 
 	let options: string[];
-	let search: string = "";
 
-	function handleSearch() {
-		let filtered = [];
-		for (let i = 0; i < directory.length; i++) {
-			if (directory[i].toLowerCase().includes(search.toLowerCase())) {
-				filtered.push(directory[i]);
-			}
-		}
-		options = filtered;
-	}
 
 	export let directory: string[];
 
@@ -25,11 +15,9 @@
 </script>
 
 <Command.Root shouldFilter={false}>
-	<Command.Input
-		placeholder="Search..."
-		bind:value={search}
-		oninput={handleSearch}
-	/>
+		<div class="mt-[44px]">
+			<Command.Separator />
+		</div>
 	<Command.List style="min-height: fit-content">
 		<Command.Empty>No results found.</Command.Empty>
 		{#each options as path (path)}

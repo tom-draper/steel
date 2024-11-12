@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import Nav from "$lib/components/Nav.svelte";
+    import Nav from "../../lib/components/Nav.svelte";
     import Textarea from "$lib/components/ui/textarea/textarea.svelte";
     import DirectoryView from "$lib/components/DirectoryView.svelte";
 
@@ -9,7 +9,6 @@
     let slug: string;
     let fileText: string | null = null;
     let directoryContents: string[] | null = null;
-    let fileNotFound = false;
 
     $: slug = $page.params.slug;
 
@@ -28,7 +27,6 @@
             if (response.ok && response.status === 200) {
                 const data = await response.json();
                 const isDirectory = data instanceof Array;
-                fileNotFound = false;
                 if (isDirectory) {
                     directoryContents = data;
                     fileText = "";
@@ -46,9 +44,6 @@
                     console.log('file:', fileText);
                 }
             } else {
-                if (response.status === 404) {
-                    fileNotFound = true;
-                }
                 resetState();
             }
         } catch (error) {
@@ -89,7 +84,7 @@
 
     {#if directoryContents !== null}
         <div class="directory-view-container">
-            <DirectoryView bind:directory={directoryContents} />
+            <DirectoryView bind:directory={directoryContents}/>
         </div>
     {:else if fileText !== null}
         <div class="text-container">
@@ -101,7 +96,7 @@
                 onpaste={handleInput}
             />
         </div>
-    {:else if fileNotFound}
+    {:else}
         <div class="file-not-found text-muted-foreground text-md">File not found.</div>
     {/if}
 </main>
@@ -116,7 +111,7 @@
         padding: 1em;
         border: none;
         border-radius: 5px;
-        resize: none;
+        border-color: red;
     }
     main,
     textarea {

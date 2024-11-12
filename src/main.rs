@@ -86,6 +86,33 @@ async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
     }
 }
 
+async fn serve_map() -> impl IntoResponse {
+    // crawl all directories to build a list of all files
+    let mut content = Vec::new();
+    let mut stack = vec![String::from(".")];
+    while let Some(path) = stack.pop() {
+        match fs::metadata(&path).await {
+            Ok(metadata) => {
+                if metadata.is_file() {
+                    content.push(path[2..].to_string());
+                } else if metadata.is_dir() {
+                    let mut dir = fs::read_dir(path).await.unwrap();
+                    while let Some(entry) = dir.next_entry().await.unwrap() {
+                        let entry_path = entry.path();
+                        let entry_path_str = entry_path.to_str().unwrap().to_string();
+                        stack.push(entry_path_str);
+                    }
+                }
+            }
+            Err(_) => {
+                println!("Failed to access path: {}", path);
+            }
+        }
+    }
+    println!("Content: {:?}", content);
+    (axum::http::StatusCode::OK, Json(content))
+}
+
 #[tokio::main]
 async fn main() {
     // Build the Axum application with a single route
@@ -107,6 +134,11 @@ async fn main() {
             Router::new()
                 .route("/", get(serve_directory))
                 .route("/*path", get(serve_directory)),
+        )
+        .route(
+            "/_map",
+            get(serve_map)
+            
         )
         .nest(
             "/_app",
