@@ -15,7 +15,7 @@
 	);
 </script>
 
-<Command.Root shouldFilter={false}>
+<Command.Root shouldFilter={false} class="bg-transparent">
 	<div class="mt-[44px]">
 		<Command.Separator />
 	</div>

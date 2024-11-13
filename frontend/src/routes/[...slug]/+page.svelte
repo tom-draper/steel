@@ -112,7 +112,8 @@
         padding: 1em;
         border: none;
         border-radius: 5px;
-        border-color: red;
+        /* border-color: red; */
+        background: transparent !important;
     }
     main,
     textarea {
