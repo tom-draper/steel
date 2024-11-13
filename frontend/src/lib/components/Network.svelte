@@ -24,7 +24,7 @@
 
     // Set chart dimensions
     const width = 1600;
-    const height = 900;
+    const height = 980;
 
     function buildPlot() {
         const color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -115,48 +115,46 @@
                 .on("end", dragended);
         }
 
-        function generateNodesAndLinks(paths) {
-            const nodes = new Map();
-            const links = [];
-
-            // Step 1: Create a node for each unique directory and file
-            paths.forEach((path) => {
-                const parts = path.split("/");
-
-                // Build up the path part by part
-                parts.reduce((parentPath, part) => {
-                    const currentPath = parentPath
-                        ? `${parentPath}/${part}`
-                        : part;
-
-                    // Add the current path as a node if it doesn’t already exist
-                    if (!nodes.has(currentPath)) {
-                        nodes.set(currentPath, {
-                            id: currentPath,
-                            group: parts.length,
-                        });
-                    }
-
-                    // If there’s a parent path, create a link to the current path
-                    if (parentPath) {
-                        links.push({ source: parentPath, target: currentPath });
-                    }
-
-                    return currentPath; // The current path becomes the new parentPath for the next iteration
-                }, "");
-            });
-
-            // Step 2: Convert nodes from Map to array format expected by D3
-            const nodesArray = Array.from(nodes.values());
-
-            return { nodes: nodesArray, links };
-        }
-
         onDestroy(() => {
             // Cleanup the SVG and stop the simulation on component unmount
             simulation.stop();
             svg.remove();
         });
+    }
+
+    function generateNodesAndLinks(paths) {
+        const nodes = new Map();
+        const links = [];
+
+        // Step 1: Create a node for each unique directory and file
+        paths.forEach((path) => {
+            const parts = path.split("/");
+
+            // Build up the path part by part
+            parts.reduce((parentPath, part) => {
+                const currentPath = parentPath ? `${parentPath}/${part}` : part;
+
+                // Add the current path as a node if it doesn’t already exist
+                if (!nodes.has(currentPath)) {
+                    nodes.set(currentPath, {
+                        id: currentPath,
+                        group: parts.length,
+                    });
+                }
+
+                // If there’s a parent path, create a link to the current path
+                if (parentPath) {
+                    links.push({ source: parentPath, target: currentPath });
+                }
+
+                return currentPath; // The current path becomes the new parentPath for the next iteration
+            }, "");
+        });
+
+        // Step 2: Convert nodes from Map to array format expected by D3
+        const nodesArray = Array.from(nodes.values());
+
+        return { nodes: nodesArray, links };
     }
 </script>
 

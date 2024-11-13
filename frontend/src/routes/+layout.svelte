@@ -8,8 +8,10 @@
     export let children;
 
     let files: {path: string, is_directory: boolean}[] = [];
+    let settings: {showNetwork: boolean} = {showNetwork: false};
 
     $: files;
+    $: settings;
 
     onMount(async () => {
         files = await fetchMap();
@@ -34,5 +36,13 @@
 
 {@render children()}
 <Finder bind:files={files} />
-<Actions />
-<Network bind:files={files} />
+<Actions bind:settings={settings} />
+<div class:hidden={!settings.showNetwork} >
+    <Network bind:files={files} />
+</div>
+
+<style scoped lang="postcss">
+    .hidden {
+        display: none;
+    }
+</style>

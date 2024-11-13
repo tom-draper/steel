@@ -1,8 +1,11 @@
 <script lang="ts">
     import { Button } from "$lib/components/ui/button/index.js";
     import { onDestroy, onMount } from "svelte";
-    import { Settings, Network, ChevronsLeftRightEllipsis } from "lucide-svelte";
+    import { Network, ChevronsLeftRightEllipsis } from "lucide-svelte";
 
+    export let settings;
+
+    $: settings;
 
     let nav: HTMLElement;
     let timeoutID: number;
@@ -32,17 +35,22 @@
             }
         }, 3000);
     }
+
+    function toggleNetwork() {
+        settings = {
+            showNetwork: !settings.showNetwork,
+        }
+    }
 </script>
 
 <nav bind:this={nav} class="fixed p-4 bottom-0 left-0 flex flex-col z-10 opacity-0">
     <Button variant="outline" class="p-0 w-10 mt-3">
         <ChevronsLeftRightEllipsis class="opacity-60"/>
     </Button>
-    <Button variant="outline" class="p-0 w-10 mt-3">
+    <Button variant="outline" class="p-0 w-10 mt-3" onclick={toggleNetwork}>
         <Network class="opacity-60"/>
     </Button>
     <Button variant="outline" class="p-0 w-10 mt-3">
-        <!-- <Settings class="opacity-60"/> -->
         <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
