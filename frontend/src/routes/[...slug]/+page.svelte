@@ -8,7 +8,7 @@
     let updateID: number;
     let slug: string;
     let fileText: string | null = null;
-    let directoryContents: string[] | null = null;
+    let directoryContents: {path: string, is_directory: boolean}[] | null = null;
 
     $: slug = $page.params.slug;
 
@@ -84,19 +84,20 @@
 
     {#if directoryContents !== null}
         <div class="directory-view-container">
-            <DirectoryView bind:directory={directoryContents}/>
+            <DirectoryView bind:nodes={directoryContents}/>
         </div>
     {:else if fileText !== null}
         <div class="text-container">
             <Textarea
                 id="fileText"
+                class="resize-none"
                 bind:value={fileText}
                 placeholder="Empty file..."
                 oninput={handleInput}
                 onpaste={handleInput}
             />
         </div>
-    {:else}
+    {:else if fileText !== null || directoryContents !== null}
         <div class="file-not-found text-muted-foreground text-md">File not found.</div>
     {/if}
 </main>

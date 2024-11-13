@@ -5,6 +5,7 @@ use axum::{
     routing::get, // Corrected import for the get handler
     Router,
 };
+use serde::Serialize;
 use std::net::SocketAddr;
 use tokio::fs;
 use tower_http::services::ServeDir;
@@ -66,6 +67,12 @@ async fn serve_file(Path(path): Path<String>) -> impl IntoResponse {
     }
 }
 
+#[derive(Debug, Serialize)]
+struct Node {
+    path: String,
+    is_directory: bool,
+}
+
 async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
     println!("Requested directory path: {}", path);
     match fs::read_dir(path).await {
@@ -74,20 +81,20 @@ async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
             while let Some(entry) = dir.next_entry().await.unwrap() {
                 let path = entry.path();
                 let path_str = path.to_str().unwrap().to_string();
-                content.push(path_str);
+                let is_directory = fs::metadata(&path).await.unwrap().is_dir();
+                content.push(Node { path: path_str, is_directory });
             }
             println!("Content: {:?}", content);
-            (axum::http::StatusCode::OK, Json(content))
+            (axum::http::StatusCode::OK, Json(content)).into_response()
         }
         Err(_) => {
             println!("Directory not found");
-            (axum::http::StatusCode::NOT_FOUND, Json(vec![]))
+            (axum::http::StatusCode::NOT_FOUND, Json::<Vec<Node>>(vec![])).into_response()
         }
     }
 }
 
 async fn serve_map() -> impl IntoResponse {
-    // crawl all directories to build a list of all files
     let mut content = Vec::new();
     let mut stack = vec![String::from(".")];
     while let Some(path) = stack.pop() {

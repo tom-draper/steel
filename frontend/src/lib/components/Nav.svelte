@@ -23,7 +23,7 @@
 
     function handleMouseMove(event: MouseEvent) {
         if (!nav) {
-            return
+            return;
         }
 
         nav.style.opacity = "1";
@@ -36,6 +36,7 @@
             }
         }, 3000);
     }
+
     export let path: string;
 </script>
 
@@ -51,7 +52,6 @@
 
                 {#if parts.length > 2}
                     <Breadcrumb.Item>
-                        <!-- <Breadcrumb.Ellipsis /> -->
                         <DropdownMenu.Root>
                             <DropdownMenu.Trigger
                                 class="flex items-center gap-1"
@@ -113,7 +113,7 @@
     nav {
         padding: 1em 2em;
         opacity: 0;
-        transition: opacity 0.4s;
+        transition: opacity 0.5s;
     }
     .directory {
         align-items: center;

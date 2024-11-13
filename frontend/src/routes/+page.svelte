@@ -2,7 +2,7 @@
     import DirectoryView from "$lib/components/DirectoryView.svelte";
     import { onMount } from "svelte";
 
-    let directoryContents: string[] | null = null;
+    let directoryContents: {path: string, is_directory: boolean}[] | null = null;
 
     onMount(() => {
         fetchRoot();
@@ -41,7 +41,7 @@
 
     {#if directoryContents !== null}
         <div class="grid place-items-center w-[90%] place-self-center pb-[5em] max-w-[500px]">
-            <DirectoryView bind:directory={directoryContents}/>
+            <DirectoryView bind:nodes={directoryContents}/>
         </div>
     {/if}
 </main>

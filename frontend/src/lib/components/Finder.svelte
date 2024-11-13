@@ -1,26 +1,26 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-	import { goto } from "$app/navigation";
-	import * as Command from "$lib/components/ui/command";
+    import { goto } from "$app/navigation";
+    import * as Command from "$lib/components/ui/command";
 
-    let files: string[];
     let finderOpen = false;
     let search: string;
     let options: string[];
 
-    onMount(async () => {
-        files = await fetchMap();
+    export let files;
 
+    onMount(async () => {
         // listen for command + J to open the finder
         window.addEventListener("keydown", handleKeyDown);
 
         onDestroy(() => {
             window.removeEventListener("keydown", handleKeyDown);
         });
-    });
+    })
 
     function handleKeyDown(event) {
-        if (event.key === "j") {
+        if (event.key === "j" && event.ctrlKey) {
+            event.preventDefault();
             toggleFinder();
         }
     }
@@ -29,34 +29,38 @@
         finderOpen = !finderOpen;
         if (finderOpen) {
             const input = document.querySelector("input");
+            console.log(input);
             if (input) {
-                 input.focus();
+                input.focus();
             }
+        } else {
+            search = "";
+            options = [];
         }
     }
 
-	function handleSearch() {
+    function handleSearch() {
         if (!search) {
             options = [];
             return;
         }
 
-		let filtered = [];
-		for (let i = 0; i < files.length; i++) {
-			if (files[i].toLowerCase().includes(search.toLowerCase())) {
-				filtered.push(files[i]);
-			}
-		}
+        let filtered = [];
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].toLowerCase().includes(search.toLowerCase())) {
+                filtered.push(files[i]);
+            }
+        }
         if (filtered.length > 10) {
             options = filtered.slice(0, 10);
         } else {
             options = filtered;
         }
-	}
+    }
 
-	function getFilename(path: string) {
-		return path.split("/").pop();
-	}
+    function getFilename(path: string) {
+        return path.split("/").pop();
+    }
 
     function getDirectory(path: string) {
         return path.split("/").slice(0, -1).join("/");
@@ -76,6 +80,24 @@
         }
         return [];
     }
+
+    function searchResult(path: string, search: string) {
+        const index = path.toLowerCase().indexOf(search.toLowerCase());
+        if (index === -1) {
+            return `<span class="text-muted-foreground">${path}</span>`;
+        }
+        return (
+            '<span class="text-muted-foreground">' +
+            path.substring(0, index) +
+            "</span>" +
+            "<span>" +
+            path.substring(index, index + search.length) +
+            "</span>" +
+            '<span class="text-muted-foreground">' +
+            path.substring(index + search.length) +
+            "</span>"
+        );
+    }
 </script>
 
 <div
@@ -90,16 +112,18 @@
                 oninput={handleSearch}
             />
             <Command.List style="min-height: fit-content">
-                <!-- <Command.Empty>No results found.</Command.Empty> -->
                 {#each options as path (path)}
                     <Command.Item
                         value={path}
                         style="cursor: pointer; white-space: pre"
                         onclick={() => {
-                            toggleFinder()
-                            goto("/" + path)
+                            toggleFinder();
+                            goto("/" + path);
                         }}
-                        ><span class="text-muted-foreground">{getDirectory(path)}/</span><span>{getFilename(path)}</span></Command.Item
+                        ><p class="whitespace-pre-wrap">
+                            {@html searchResult(path, search)}
+                            <!-- <span class="text-muted-foreground">{getDirectory(path)}/</span><span>{getFilename(path)}</span> -->
+                        </p></Command.Item
                     >
                 {/each}
             </Command.List>
