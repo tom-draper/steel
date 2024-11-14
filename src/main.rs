@@ -101,7 +101,7 @@ async fn serve_map() -> impl IntoResponse {
         match fs::metadata(&path).await {
             Ok(metadata) => {
                 if metadata.is_file() {
-                    content.push(path[2..].to_string());
+                    content.push(path.to_string());
                 } else if metadata.is_dir() {
                     let mut dir = fs::read_dir(path).await.unwrap();
                     while let Some(entry) = dir.next_entry().await.unwrap() {
