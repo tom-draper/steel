@@ -12,8 +12,8 @@
     let svg;
 
     // Set chart dimensions
-    const width = 1800;
-    const height = 1000;
+    const width = 1920;
+    const height = 1080;
 
     function buildPlot() {
         // const color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -28,19 +28,23 @@
 
         // Initialize the simulation with nodes and link forces.
         // const simulation = d3.forceSimulation(nodes)
-        //     .force("link", d3.forceLink(links).id(d => d.id).distance(50).strength(0.5))
-        //     .force("charge", d3.forceManyBody().strength(-100))
+            // .force("link", d3.forceLink(links).id(d => d.id).distance(50).strength(0.5))
+            // .force("charge", d3.forceManyBody().strength(-100))
         //     .force("x", d3.forceX())
         //     .force("y", d3.forceY());
 
         // Initialize force simulation
         const simulation = d3
             .forceSimulation(nodes)
-            .force(
-                "link",
-                d3.forceLink(links).id((d) => d.id),
-            )
-            .force("charge", d3.forceManyBody())
+            .force("link", d3.forceLink(links).id(d => d.id).distance(50).strength(0.5))
+            .force("charge", d3.forceManyBody().strength(-100))
+            .force("x", d3.forceX())
+            .force("y", d3.forceY())
+            // .force(
+            //     "link",
+            //     d3.forceLink(links).id((d) => d.id),
+            // )
+            // .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", ticked);
 
@@ -51,7 +55,7 @@
             .attr("width", width)
             .attr("height", height)
             .attr("viewBox", [0, 0, width, height])
-            .attr("style", "max-width: 100%; height: auto;");
+            .attr("style", "max-width: 100%;");
 
         // svg = d3
         //     .select("#graph")

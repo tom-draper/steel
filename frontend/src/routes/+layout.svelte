@@ -7,15 +7,15 @@
 
     export let children;
 
-    let files: {path: string, is_directory: boolean}[] = [];
-    let settings: {showNetwork: boolean} = {showNetwork: false};
+    let files: { path: string; is_directory: boolean }[] = [];
+    let settings: { showNetwork: boolean } = { showNetwork: false };
 
     $: files;
     $: settings;
 
     onMount(async () => {
         files = await fetchMap();
-        console.log(files.length)
+        console.log(files.length);
     });
 
     async function fetchMap() {
@@ -35,10 +35,10 @@
 </script>
 
 {@render children()}
-<Finder bind:files={files} />
-<Actions bind:settings={settings} />
-<div class:hidden={!settings.showNetwork} >
-    <Network bind:files={files} />
+<Finder bind:files />
+<Actions bind:settings />
+<div class:hidden={!settings.showNetwork}>
+    <Network bind:files />
 </div>
 
 <style scoped lang="postcss">

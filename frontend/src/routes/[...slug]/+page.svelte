@@ -8,7 +8,8 @@
     let updateID: number;
     let slug: string;
     let fileText: string | null = null;
-    let directoryContents: {path: string, is_directory: boolean}[] | null = null;
+    let directoryContents: { path: string; is_directory: boolean }[] | null =
+        null;
 
     $: slug = $page.params.slug;
 
@@ -17,7 +18,7 @@
     });
 
     $: if (slug) {
-        console.log('slug:', slug);
+        console.log("slug:", slug);
         fetchPath(slug);
     }
 
@@ -30,8 +31,8 @@
                 if (isDirectory) {
                     directoryContents = data;
                     fileText = "";
-                    console.log('directoryContents:', directoryContents);
-                    console.log('file:', fileText);
+                    console.log("directoryContents:", directoryContents);
+                    console.log("file:", fileText);
                 } else {
                     fileText = data;
                     directoryContents = null;
@@ -40,8 +41,8 @@
                             target: document.getElementById("fileText"),
                         });
                     });
-                    console.log('directoryContents:', directoryContents);
-                    console.log('file:', fileText);
+                    console.log("directoryContents:", directoryContents);
+                    console.log("file:", fileText);
                 }
             } else {
                 resetState();
@@ -75,7 +76,7 @@
     function resetState() {
         fileText = null;
         directoryContents = null;
-        console.log(directoryContents)
+        console.log(directoryContents);
     }
 </script>
 
@@ -84,7 +85,7 @@
 
     {#if directoryContents !== null}
         <div class="directory-view-container">
-            <DirectoryView bind:nodes={directoryContents}/>
+            <DirectoryView bind:nodes={directoryContents} />
         </div>
     {:else if fileText !== null}
         <div class="text-container">
@@ -98,7 +99,9 @@
             />
         </div>
     {:else if fileText !== null || directoryContents !== null}
-        <div class="file-not-found text-muted-foreground text-md">File not found.</div>
+        <div class="file-not-found text-muted-foreground text-md">
+            File not found.
+        </div>
     {/if}
 </main>
 
@@ -112,7 +115,6 @@
         padding: 1em;
         border: none;
         border-radius: 5px;
-        /* border-color: red; */
         background: transparent !important;
     }
     main,
