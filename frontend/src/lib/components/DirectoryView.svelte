@@ -15,7 +15,7 @@
 	);
 </script>
 
-<Command.Root shouldFilter={false} class="bg-transparent z-50">
+<Command.Root shouldFilter={false} class="z-50" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(1px)">
 	<div class="mt-[44px]">
 		<Command.Separator />
 	</div>
@@ -24,7 +24,8 @@
 		{#each options as option (option.path)}
 			<Command.Item
 				value={option.path}
-				style="cursor: pointer"
+				class="item"
+				style="cursor: pointer;"
 				onclick={() => goto("/" + option.path)}
 			>
 				<div class="mr-2">
@@ -39,3 +40,9 @@
 		{/each}
 	</Command.List>
 </Command.Root>
+
+<style scoped lang="postcss">
+	:global(.item:hover) {
+		background: rgba(241, 245, 249, 0.8);
+	}
+</style>
