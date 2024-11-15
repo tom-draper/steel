@@ -10,16 +10,15 @@
 
     let allPaths: string[] = [];
     let files: string[] = [];
-    let settings: { showNetwork: boolean } = { showNetwork: false };
+    let settings: { showNetwork: boolean } = { showNetwork: true };
 
-    $: files = filterByPath(allPaths, $page.params.slug);
+    $: files = filterByPath(allPaths, $page.params.slug).sort((a, b) => a.length - b.length).slice(0, 500);
     $: allPaths;
     $: settings;
 
     onMount(async () => {
         allPaths = await fetchMap();
         console.log(allPaths.length);
-        // files = filterByPath(allPaths, "/");
     });
 
     async function fetchMap() {
@@ -38,8 +37,9 @@
     }
 
     function filterByPath(files: string[], path: string) {
-        console.log(path)
-        console.log('here', files.filter((p) => p.startsWith(path)));
+        if (!path) {
+            return files;
+        }
         return files.filter((p) => p.startsWith(path));
     }
 </script>

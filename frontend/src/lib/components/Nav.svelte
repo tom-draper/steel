@@ -40,7 +40,7 @@
     export let path: string;
 </script>
 
-<nav bind:this={nav}>
+<nav bind:this={nav} class="z-50 absolute">
     <div class="directory">
         <Breadcrumb.Root>
             <Breadcrumb.List>

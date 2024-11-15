@@ -11,7 +11,6 @@ use tokio::fs;
 use tower_http::services::ServeDir;
 
 async fn serve_website() -> impl IntoResponse {
-    println!("Requested index.html");
     let content = fs::read_to_string("frontend/build/index.html")
         .await
         .unwrap_or_else(|_| String::new());
@@ -19,18 +18,13 @@ async fn serve_website() -> impl IntoResponse {
 }
 
 async fn serve_path(Path(path): Path<String>) -> axum::response::Response {
-    println!("Requested path: {}", path);
-
     match fs::metadata(&path).await {
         Ok(metadata) => {
             if metadata.is_file() {
-                println!("The path is a file.");
                 return serve_file(Path(path)).await.into_response();
             } else if metadata.is_dir() {
-                println!("The path is a directory.");
                 return serve_directory(Path(path)).await.into_response();
             } else {
-                println!("The path is neither a regular file nor a directory.");
                 return (
                     axum::http::StatusCode::NOT_FOUND,
                     Json(String::from("Path not found")),
@@ -39,31 +33,23 @@ async fn serve_path(Path(path): Path<String>) -> axum::response::Response {
             }
         }
         Err(e) => {
-            println!("Failed to access path: {}", e);
+            eprintln!("Failed to access path: {}", e);
             return serve_file(Path(path)).await.into_response();
         }
     }
 }
 
 async fn serve_path_root() -> axum::response::Response {
-    println!("Requested root path");
     serve_path(Path(String::from("."))).await
 }
 
 async fn serve_file(Path(path): Path<String>) -> impl IntoResponse {
-    println!("Requested file path: {}", path);
     match fs::read_to_string(path).await {
-        Ok(content) => {
-            println!("Content: {}", content);
-            (axum::http::StatusCode::OK, Json(content))
-        }
-        Err(_) => {
-            println!("File not found");
-            (
-                axum::http::StatusCode::NOT_FOUND,
-                Json(String::from("File not found")),
-            )
-        }
+        Ok(content) => (axum::http::StatusCode::OK, Json(content)),
+        Err(_) => (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(String::from("File not found")),
+        ),
     }
 }
 
@@ -74,7 +60,6 @@ struct Node {
 }
 
 async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
-    println!("Requested directory path: {}", path);
     match fs::read_dir(path).await {
         Ok(mut dir) => {
             let mut content = Vec::new();
@@ -82,15 +67,14 @@ async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
                 let path = entry.path();
                 let path_str = path.to_str().unwrap().to_string();
                 let is_directory = fs::metadata(&path).await.unwrap().is_dir();
-                content.push(Node { path: path_str, is_directory });
+                content.push(Node {
+                    path: path_str,
+                    is_directory,
+                });
             }
-            println!("Content: {:?}", content);
             (axum::http::StatusCode::OK, Json(content)).into_response()
         }
-        Err(_) => {
-            println!("Directory not found");
-            (axum::http::StatusCode::NOT_FOUND, Json::<Vec<Node>>(vec![])).into_response()
-        }
+        Err(_) => (axum::http::StatusCode::NOT_FOUND, Json::<Vec<Node>>(vec![])).into_response(),
     }
 }
 
@@ -101,7 +85,7 @@ async fn serve_map() -> impl IntoResponse {
         match fs::metadata(&path).await {
             Ok(metadata) => {
                 if metadata.is_file() {
-                    content.push(path.to_string());
+                    content.push(path[2..].to_string());
                 } else if metadata.is_dir() {
                     let mut dir = fs::read_dir(path).await.unwrap();
                     while let Some(entry) = dir.next_entry().await.unwrap() {
@@ -112,11 +96,52 @@ async fn serve_map() -> impl IntoResponse {
                 }
             }
             Err(_) => {
-                println!("Failed to access path: {}", path);
+                eprintln!("Failed to access path: {}", path);
             }
         }
     }
-    println!("Content: {:?}", content);
+    (axum::http::StatusCode::OK, Json(content))
+}
+
+async fn serve_map_bfs() -> impl IntoResponse {
+    let mut content = Vec::new(); // Stores discovered file paths
+    let mut queue = vec![String::from(".")]; // BFS queue starts with the root path
+
+    while let Some(path) = queue.pop() {
+        match fs::metadata(&path).await {
+            Ok(metadata) => {
+                if metadata.is_file() {
+                    // Safely strip "./" or use the full path
+                    let relative_path = std::path::Path::new(&path)
+                        .strip_prefix(".")
+                        .unwrap_or(std::path::Path::new(&path));
+                    content.push(relative_path.to_string_lossy().to_string());
+                } else if metadata.is_dir() {
+                    // Attempt to read the directory and enqueue its entries
+                    match fs::read_dir(&path).await {
+                        Ok(mut dir) => {
+                            while let Ok(Some(entry)) = dir.next_entry().await {
+                                if let Ok(entry_path) = entry.path().canonicalize() {
+                                    if let Some(entry_path_str) = entry_path.to_str() {
+                                        queue.insert(0, entry_path_str.to_string());
+                                        // Enqueue at the front
+                                    }
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            eprintln!("Failed to read directory '{}': {}", path, e);
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("Failed to access path '{}': {}", path, e);
+            }
+        }
+    }
+
+    // Log the discovered files and return as JSON
     (axum::http::StatusCode::OK, Json(content))
 }
 
@@ -142,11 +167,7 @@ async fn main() {
                 .route("/", get(serve_directory))
                 .route("/*path", get(serve_directory)),
         )
-        .route(
-            "/_map",
-            get(serve_map)
-            
-        )
+        .route("/_map", get(serve_map))
         .nest(
             "/_app",
             Router::new().route(

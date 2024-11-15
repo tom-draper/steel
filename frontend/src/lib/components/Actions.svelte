@@ -43,7 +43,7 @@
     }
 </script>
 
-<nav bind:this={nav} class="fixed p-4 bottom-0 left-0 flex flex-col z-10 opacity-0">
+<nav bind:this={nav} class="fixed p-4 bottom-0 left-0 flex flex-col z-50 opacity-0">
     <!-- <Button variant="outline" class="p-0 w-10 mt-3">
         <ChevronsLeftRightEllipsis class="opacity-60"/>
     </Button> -->

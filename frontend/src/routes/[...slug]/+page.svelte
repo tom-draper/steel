@@ -5,11 +5,15 @@
     import Textarea from "$lib/components/ui/textarea/textarea.svelte";
     import DirectoryView from "$lib/components/DirectoryView.svelte";
 
+    type File = {
+        path: string;
+        is_directory: boolean;
+    };
+
     let updateID: number;
     let slug: string;
     let fileText: string | null = null;
-    let directoryContents: { path: string; is_directory: boolean }[] | null =
-        null;
+    let directoryContents: File[] | null = null;
 
     $: slug = $page.params.slug;
 
@@ -117,8 +121,7 @@
         border-radius: 5px;
         background: transparent !important;
     }
-    main,
-    textarea {
+    main {
         font-family:
             system-ui,
             -apple-system,
@@ -145,17 +148,6 @@
         padding-top: 25vh;
         padding-bottom: 5em;
         max-width: 500px;
-    }
-    h3 {
-        padding: 0 0.5em;
-    }
-    .dynamic-textarea {
-        overflow: hidden; /* Hide overflow to allow auto-resizing */
-        min-height: 100px;
-        width: 100%;
-    }
-    .hidden {
-        display: none;
     }
     .file-not-found {
         display: grid;
