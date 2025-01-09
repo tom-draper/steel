@@ -5,7 +5,6 @@
     export let files;
 
     $: if (files) {
-        console.log("build", files);
         buildPlot();
     }
     //   export let data = { nodes: [], links: [] };
@@ -31,10 +30,7 @@
 
         // const links = data.links.map((d) => ({ ...d }));
         // const nodes = data.nodes.map((d) => ({ ...d }));
-        console.log(files);
         const { nodes, links } = generateNodesAndLinks(files.slice(0, 1000));
-
-        console.log(nodes, links);
 
         // Initialize force simulation
         const simulation = d3

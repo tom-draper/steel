@@ -16,7 +16,6 @@
                 const data = await response.json();
                 if (data instanceof Array) {
                     directoryContents = data;
-                    console.log("directoryContents:", directoryContents);
                 }
             } else {
                 resetState();

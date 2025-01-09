@@ -29,7 +29,6 @@
         finderOpen = !finderOpen;
         if (finderOpen) {
             const input = document.querySelector("input");
-            console.log(input);
             if (input) {
                 input.focus();
             }

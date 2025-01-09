@@ -18,7 +18,6 @@
 
     onMount(async () => {
         allPaths = await fetchMap();
-        console.log(allPaths.length);
     });
 
     async function fetchMap() {

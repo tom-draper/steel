@@ -22,7 +22,6 @@
     });
 
     $: if (slug) {
-        console.log("slug:", slug);
         fetchPath(slug);
     }
 
@@ -35,8 +34,6 @@
                 if (isDirectory) {
                     directoryContents = data;
                     fileText = "";
-                    console.log("directoryContents:", directoryContents);
-                    console.log("file:", fileText);
                 } else {
                     fileText = data;
                     directoryContents = null;
@@ -45,8 +42,6 @@
                             target: document.getElementById("fileText"),
                         });
                     });
-                    console.log("directoryContents:", directoryContents);
-                    console.log("file:", fileText);
                 }
             } else {
                 resetState();
@@ -80,7 +75,6 @@
     function resetState() {
         fileText = null;
         directoryContents = null;
-        console.log(directoryContents);
     }
 </script>
 

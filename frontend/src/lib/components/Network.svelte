@@ -2,6 +2,7 @@
     import { onDestroy } from "svelte";
     import * as d3 from "d3";
     import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
 
     export let files;
 
@@ -92,9 +93,17 @@
                     ? 5
                     : 3.5,
             )
+            .on('click', (event, d) => {
+                if (d.data.id !== $page.params.slug) {
+                    goto('/' + d.data.id);
+                }
+            })
             .call(drag(simulation));
 
-        node.append("title").text((d) => d.data.id);
+        node.append("title").text((d) => d.data.id === $page.params.slug
+            ? "/"
+            : d.data.id.replace($page.params.slug + "/", "")
+        );
 
         // Tick function to update positions
         function ticked() {
@@ -206,65 +215,19 @@
             return root;
         }
 
-        const parentDirectory = $page.params.slug.split("/").slice(0, -1);
+        const parentDirectory = $page.params.slug.split("/").slice(0, -1).join('/') || '/';
 
+        // Step through the root chain until we find the parent directory
         let _root = root;
         while (_root.children.length === 1 && _root.id !== parentDirectory) {
             _root = _root.children[0];
         }
+        // Reached the parent folder, take its children
+        if (_root.children) {
+            _root = _root.children[0];
+        }
         return _root;
     }
-
-    // function buildHierarchy(paths) {
-    //     const root = { name: "root", id: "/", children: [] };
-
-    //     // Get an array of parent directories to exclude
-    //     const parentDirectories = $page.params.slug ? $page.params.slug.split("/").slice(0, -1) : '/';
-
-    //     paths.forEach((path) => {
-    //         const parts = path.split("/");
-    //         let current = root;
-    //         let currentAccumulatedPath = "";
-
-    //         // Skip parent directories by checking against currentPath
-    //         let skip = true;
-
-    //         parts.forEach((part, index) => {
-    //             currentAccumulatedPath = currentAccumulatedPath
-    //                 ? `${currentAccumulatedPath}/${part}`
-    //                 : part;
-
-    //             // Skip nodes that are part of parent directories
-    //             if (skip) {
-    //                 if (
-    //                     currentAccumulatedPath === parentDirectories.join("/")
-    //                 ) {
-    //                     skip = false; // Start including nodes after parent directories
-    //                 }
-    //                 return;
-    //             }
-
-    //             // Find or create the child node
-    //             let child = current.children.find(
-    //                 (child) => child.name === part,
-    //             );
-    //             if (!child) {
-    //                 child = {
-    //                     name: part,
-    //                     id: currentAccumulatedPath,
-    //                     children: [],
-    //                 };
-    //                 current.children.push(child);
-    //             }
-    //             // Move to the child for the next iteration
-    //             current = child;
-    //         });
-    //     });
-
-    //     return root;
-    // }
-
-
 </script>
 
 <div class="fixed top-0 left-0 w-full grid place-items-center z-10">

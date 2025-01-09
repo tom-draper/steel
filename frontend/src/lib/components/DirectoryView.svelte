@@ -15,7 +15,7 @@
 	);
 </script>
 
-<Command.Root shouldFilter={false} class="z-50" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(1px)">
+<Command.Root shouldFilter={false} class="z-50" style="background: rgba(255, 255, 255, 0.7);">
 	<div class="mt-[44px]">
 		<Command.Separator />
 	</div>
