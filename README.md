@@ -8,6 +8,8 @@ An offline, browser-based file-explorer and text reader, with powerful built-in 
 
 ```bash
 docker build -t steel .
+```
+```bash
 docker run -d -p 3000:3000 steel
 ```
 
