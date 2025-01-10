@@ -11,6 +11,8 @@ docker build -t steel .
 docker run -d -p 3000:3000 steel
 ```
 
+Open `localhost:3000` in a browser.
+
 <!-- ![Screenshot 2025-01-09 161512](https://github.com/user-attachments/assets/878feb15-880f-4688-9096-bb82cad683bb) -->
 
 ## Contributions
