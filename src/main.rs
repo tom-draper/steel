@@ -7,8 +7,22 @@ use axum::{
 };
 use serde::Serialize;
 use std::net::SocketAddr;
+use std::env;
+use dotenv::dotenv;
 use tokio::fs;
 use tower_http::services::ServeDir;
+
+async fn is_running_in_docker() -> bool {
+    fs::metadata("/.dockerenv").await.is_ok()
+}
+
+async fn get_root_folder() -> String {
+    if is_running_in_docker().await {
+        String::from("/steel")
+    } else {
+        env::var("ROOT_FOLDER").unwrap_or(String::from("."))
+    }
+}
 
 async fn serve_website() -> impl IntoResponse {
     let content = fs::read_to_string("frontend/build/index.html")
@@ -40,7 +54,8 @@ async fn serve_path(Path(path): Path<String>) -> axum::response::Response {
 }
 
 async fn serve_path_root() -> axum::response::Response {
-    serve_path(Path(String::from("."))).await
+    let root_folder = get_root_folder().await;
+    serve_path(Path(root_folder)).await
 }
 
 async fn serve_file(Path(path): Path<String>) -> impl IntoResponse {
@@ -80,7 +95,8 @@ async fn serve_directory(Path(path): Path<String>) -> impl IntoResponse {
 
 async fn serve_map() -> impl IntoResponse {
     let mut content = Vec::new();
-    let mut stack = vec![String::from(".")];
+    let root_folder = get_root_folder().await;
+    let mut stack = vec![root_folder];
     while let Some(path) = stack.pop() {
         match fs::metadata(&path).await {
             Ok(metadata) => {
@@ -105,7 +121,8 @@ async fn serve_map() -> impl IntoResponse {
 
 async fn serve_map_bfs() -> impl IntoResponse {
     let mut content = Vec::new(); // Stores discovered file paths
-    let mut queue = vec![String::from(".")]; // BFS queue starts with the root path
+    let root_folder = get_root_folder().await;
+    let mut queue = vec![root_folder]; // BFS queue starts with the root path
 
     while let Some(path) = queue.pop() {
         match fs::metadata(&path).await {
@@ -147,6 +164,8 @@ async fn serve_map_bfs() -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+
     // Build the Axum application with a single route
     let app = Router::new()
         .nest(

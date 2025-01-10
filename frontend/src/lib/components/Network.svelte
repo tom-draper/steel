@@ -74,7 +74,7 @@
             .attr("fill", (d) =>
                 d.data.id === $page.params.slug ||
                 (d.data.id === "/" && !$page.params.slug)
-                    ? "red"
+                    ? "#ff3e00"
                     : d.children
                       ? null
                       : "#000",
@@ -82,7 +82,7 @@
             .attr("stroke", (d) =>
                 d.data.id === $page.params.slug ||
                 (d.data.id === "/" && !$page.params.slug)
-                    ? "red"
+                    ? "#ff3e00"
                     : d.children
                       ? null
                       : "#fff",
